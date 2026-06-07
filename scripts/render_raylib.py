@@ -618,24 +618,17 @@ def _fill_polygon_mask_window(
     if not polygon_points:
         return
 
-    use_equal = field_rect_mode == "geometry"
-    eq_rect = _equal_scale_rect(bounds, rect) if use_equal else rect
+    eq_rect = _equal_scale_rect(bounds, rect)
     eq_rx, eq_ry, eq_rw, eq_rh = eq_rect
     if eq_rw <= 0 or eq_rh <= 0:
         return
 
     def sample_world_y(screen_y: int) -> float:
-        if use_equal:
-            _, world_y = _fit_point_from_rect_equal_scale(eq_rx, screen_y + 0.5, bounds, eq_rect)
-            return world_y
-        _, world_y = _fit_point_from_rect(eq_rx, screen_y + 0.5, bounds, eq_rect)
+        _, world_y = _fit_point_from_rect_equal_scale(eq_rx, screen_y + 0.5, bounds, eq_rect)
         return world_y
 
     def sample_screen_x(px: float, py: float) -> int:
-        if use_equal:
-            x, _ = _fit_point_to_rect_equal_scale(px, py, bounds, eq_rect)
-            return x
-        x, _ = _fit_point_to_rect(px, py, bounds, eq_rect)
+        x, _ = _fit_point_to_rect_equal_scale(px, py, bounds, eq_rect)
         return x
 
     for screen_y in range(eq_ry, eq_ry + eq_rh):
@@ -680,24 +673,17 @@ def _fill_polygon_mask_image(
     if not polygon_points:
         return
 
-    use_equal = field_rect_mode == "geometry"
-    eq_rect = _equal_scale_rect(bounds, rect) if use_equal else rect
+    eq_rect = _equal_scale_rect(bounds, rect)
     eq_rx, eq_ry, eq_rw, eq_rh = eq_rect
     if eq_rw <= 0 or eq_rh <= 0:
         return
 
     def sample_world_y(screen_y: int) -> float:
-        if use_equal:
-            _, world_y = _fit_point_from_rect_equal_scale(eq_rx, screen_y + 0.5, bounds, eq_rect)
-            return world_y
-        _, world_y = _fit_point_from_rect(eq_rx, screen_y + 0.5, bounds, eq_rect)
+        _, world_y = _fit_point_from_rect_equal_scale(eq_rx, screen_y + 0.5, bounds, eq_rect)
         return world_y
 
     def sample_screen_x(px: float, py: float) -> int:
-        if use_equal:
-            x, _ = _fit_point_to_rect_equal_scale(px, py, bounds, eq_rect)
-            return x
-        x, _ = _fit_point_to_rect(px, py, bounds, eq_rect)
+        x, _ = _fit_point_to_rect_equal_scale(px, py, bounds, eq_rect)
         return x
 
     image_ptr = rl.ffi.addressof(image)
@@ -1207,16 +1193,15 @@ def _draw_field_map_window(
         return
 
     field_domain = sample.field_domain or bounds
-    use_equal = field_rect_mode == "geometry"
-    draw_rect = _equal_scale_rect(field_domain, rect) if use_equal else rect
+    draw_rect = _equal_scale_rect(field_domain, rect)
     draw_rx, draw_ry, draw_rw, draw_rh = draw_rect
     if draw_rw <= 0 or draw_rh <= 0:
         return
 
     sample_rows = max(1, rows)
     sample_cols = max(1, cols)
-    draw_rows = sample_rows if use_equal else min(sample_rows, draw_rh)
-    draw_cols = sample_cols if use_equal else min(sample_cols, draw_rw)
+    draw_rows = draw_rh
+    draw_cols = draw_rw
     if draw_rows <= 0:
         draw_rows = 1
     if draw_cols <= 0:
@@ -1226,17 +1211,11 @@ def _draw_field_map_window(
     field = sample.field
 
     for row in range(draw_rows):
-        y = draw_ry + int(row * draw_rh / draw_rows)
-        y2 = draw_ry + int((row + 1) * draw_rh / draw_rows)
-        h = max(1, y2 - y)
+        y = draw_ry + row
         for col in range(draw_cols):
-            x = draw_rx + int(col * draw_rw / draw_cols)
-            x2 = draw_rx + int((col + 1) * draw_rw / draw_cols)
-            w = max(1, x2 - x)
+            x = draw_rx + col
             sample_x, sample_y = (
                 _fit_point_from_rect_equal_scale(x + 0.5, y + 0.5, field_domain, draw_rect)
-                if use_equal
-                else _fit_point_from_rect(x + 0.5, y + 0.5, field_domain, draw_rect)
             )
             val = _field_value_at_world(
                 field,
@@ -1249,7 +1228,10 @@ def _draw_field_map_window(
                 bilinear=True,
             )
             color = _field_color(val, vmin, vmax, sample.field_mode)
-            rl.DrawRectangle(x, y, w, h, color)
+            if hasattr(rl, "DrawPixel"):
+                rl.DrawPixel(x, y, color)
+            else:
+                rl.DrawRectangle(x, y, 1, 1, color)
 
 
 def _draw_field_map_image(
@@ -1269,8 +1251,7 @@ def _draw_field_map_image(
         return
 
     field_domain = sample.field_domain or bounds
-    use_equal = field_rect_mode == "geometry"
-    draw_rect = _equal_scale_rect(field_domain, rect) if use_equal else rect
+    draw_rect = _equal_scale_rect(field_domain, rect)
     draw_rx, draw_ry, draw_rw, draw_rh = draw_rect
     if draw_rw <= 0 or draw_rh <= 0:
         return
@@ -1280,25 +1261,19 @@ def _draw_field_map_image(
     image_ptr = rl.ffi.addressof(image)
     vmin = sample.field_min
     vmax = sample.field_max
-    draw_rows = sample_rows if use_equal else min(sample_rows, draw_rh)
-    draw_cols = sample_cols if use_equal else min(sample_cols, draw_rw)
+    draw_rows = draw_rh
+    draw_cols = draw_rw
     if draw_rows <= 0:
         draw_rows = 1
     if draw_cols <= 0:
         draw_cols = 1
 
     for row in range(draw_rows):
-        y = draw_ry + int(row * draw_rh / draw_rows)
-        y2 = draw_ry + int((row + 1) * draw_rh / draw_rows)
-        h = max(1, y2 - y)
+        y = draw_ry + row
         for col in range(draw_cols):
-            x = draw_rx + int(col * draw_rw / draw_cols)
-            x2 = draw_rx + int((col + 1) * draw_rw / draw_cols)
-            w = max(1, min(draw_rx + draw_rw - x, x2 - x))
+            x = draw_rx + col
             sample_x, sample_y = (
                 _fit_point_from_rect_equal_scale(x + 0.5, y + 0.5, field_domain, draw_rect)
-                if use_equal
-                else _fit_point_from_rect(x + 0.5, y + 0.5, field_domain, draw_rect)
             )
             val = _field_value_at_world(
                 field,
@@ -1311,7 +1286,10 @@ def _draw_field_map_image(
                 bilinear=True,
             )
             color = _field_color(val, vmin, vmax, sample.field_mode)
-            rl.ImageDrawRectangle(image_ptr, x, y, w, h, color)
+            if hasattr(rl, "ImageDrawPixel"):
+                rl.ImageDrawPixel(image_ptr, x, y, color)
+            else:
+                rl.ImageDrawLine(image_ptr, x, y, x, y, color)
 
 
 def _draw_geometry(
@@ -1335,9 +1313,8 @@ def _draw_geometry(
         (gx, gy, gw, gh),
         _GEOMETRY_SCREEN_FRACTION,
     )
-    field_rect = (gx, gy, gw, gh)
-
     field_bounds = sample.field_domain if sample is not None and sample.field_domain is not None else geometry_bounds
+    field_rect = _equal_scale_rect(field_bounds, (gx, gy, gw, gh))
 
     # panel background
     rl.DrawRectangle(gx, gy, gw, gh, make_color(18, 18, 18, 255))
@@ -1358,11 +1335,11 @@ def _draw_geometry(
         _fill_polygon_mask_window(
             rl,
             make_color,
-            geom_rect,
-            geometry_bounds,
+            field_rect,
+            field_bounds,
             points,
-            make_color(85, 85, 85, 190),
-            "geometry",
+            make_color(0, 0, 0, 255),
+            field_rect_mode,
         )
 
     for i in range(len(points) - 1):
@@ -1397,9 +1374,8 @@ def _draw_geometry_image(
         (gx, gy, gw, gh),
         _GEOMETRY_SCREEN_FRACTION,
     )
-    field_rect = (gx, gy, gw, gh)
-
     field_bounds = sample.field_domain if sample is not None and sample.field_domain is not None else geometry_bounds
+    field_rect = _equal_scale_rect(field_bounds, (gx, gy, gw, gh))
 
     # panel background
     rl.ImageDrawRectangle(image_ptr, gx, gy, gw, gh, make_color(18, 18, 18, 255))
@@ -1422,11 +1398,11 @@ def _draw_geometry_image(
             rl,
             make_color,
             image,
-            geom_rect,
-            geometry_bounds,
+            field_rect,
+            field_bounds,
             points,
-            make_color(85, 85, 85, 190),
-            "geometry",
+            make_color(0, 0, 0, 255),
+            field_rect_mode,
         )
 
     for i in range(len(points) - 1):
