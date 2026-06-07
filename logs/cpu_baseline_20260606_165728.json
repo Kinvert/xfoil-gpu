@@ -1,0 +1,54 @@
+{
+  "benchmark_id": "cpu-bench-1780790248",
+  "case_seconds": {
+    "mean": 2.9155053198337555e-05,
+    "p95": 2.9155053198337555e-05,
+    "p99": 2.9155053198337555e-05
+  },
+  "config": {
+    "alphas": [
+      2.0
+    ],
+    "cases_per_trial": 1,
+    "enable_cache": false,
+    "re": 1000000.0,
+    "repeats": 1,
+    "require_oracle": false,
+    "trials": 1,
+    "xfoil_executable": "xfoil"
+  },
+  "config_source": {
+    "backend_from_config": true,
+    "benchmark_from_config": false,
+    "config_path": "/home/claude/xfoil/configs/cpu_baseline_fallback.toml",
+    "query_from_config": true
+  },
+  "generated_utc": "2026-06-06T23:57:28.678812+00:00",
+  "geometry": {
+    "count": 12,
+    "path": "/home/claude/xfoil/data/naca0012.dat",
+    "sha256": "b933dfad8bdc134bfea8ef871b5da794b501a51cb8631f700b142dc7e8dd9d7e"
+  },
+  "runtime": {
+    "machine": "x86_64",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python_version": "3.12.3"
+  },
+  "status_counts": {
+    "fallback_missing_executable": 1
+  },
+  "wall_seconds": {
+    "max": 0.0002263900823891163,
+    "mean": 0.0002263900823891163,
+    "min": 0.0002263900823891163,
+    "p50": 0.0002263900823891163,
+    "p95": 0.0002263900823891163,
+    "p99": 0.0002263900823891163,
+    "throughput_cases_per_sec": 4417.154627300383
+  },
+  "xfoil": {
+    "available": false,
+    "requested": "xfoil",
+    "resolved": ""
+  }
+}

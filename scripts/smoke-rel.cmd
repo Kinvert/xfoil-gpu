@@ -1,0 +1,17 @@
+PLOP
+G
+LOAD smoke-rel.dat
+PANE
+OPER
+VISC 1e+06
+VPAR
+N 9
+MACH 0
+ITER 200
+PACC
+smoke-rel.polar
+
+ALFA 5.000000
+PACC
+QUIT
+

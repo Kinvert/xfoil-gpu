@@ -1,0 +1,13 @@
+[query]
+alpha = 5.0
+reynolds = 1_000_000
+mach = 0.0
+iterations = 200
+n_crit = 9
+
+[backend]
+xfoil_executable = "xfoil"
+timeout_seconds = 20.0
+work_dir = ""
+cache_results = false
+use_mock = true

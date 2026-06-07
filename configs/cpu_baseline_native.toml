@@ -1,0 +1,20 @@
+[query]
+alpha = 5.0
+reynolds = 1_000_000
+mach = 0.0
+iterations = 200
+n_crit = 9
+
+[benchmark]
+geometry = "data/naca0012.dat"
+alpha_start = 2.0
+alpha_stop = 8.0
+alpha_step = 2.0
+repeats = 1
+trials = 1
+
+[backend]
+backend = "native"
+cache_results = false
+panel_fallback = 80
+stall_alpha_deg = 18.0

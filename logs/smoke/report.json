@@ -1,0 +1,21 @@
+{
+  "environment": {
+    "xfoil_executable": "xfoil"
+  },
+  "fallback_smoke": {
+    "cd": 0.004100015811388301,
+    "cl": 0.5520529123941558,
+    "cm": -0.02,
+    "meta": {
+      "fallback_reason": "missing_xfoil:xfoil",
+      "source": "fallback_heuristic"
+    },
+    "name": "fallback",
+    "status": "fallback_missing_executable"
+  },
+  "oracle_smoke": {
+    "error": "XFOIL executable not found: xfoil",
+    "name": "oracle",
+    "status": "error"
+  }
+}
