@@ -1315,6 +1315,8 @@ def _draw_geometry(
     )
     field_bounds = sample.field_domain if sample is not None and sample.field_domain is not None else geometry_bounds
     field_rect = _equal_scale_rect(field_bounds, (gx, gy, gw, gh))
+    outline_rect = field_rect if sample is not None and sample.field else geom_rect
+    outline_bounds = field_bounds if sample is not None and sample.field else geometry_bounds
 
     # panel background
     rl.DrawRectangle(gx, gy, gw, gh, make_color(18, 18, 18, 255))
@@ -1343,8 +1345,8 @@ def _draw_geometry(
         )
 
     for i in range(len(points) - 1):
-        p1 = _fit_point_to_rect_equal_scale(points[i][0], points[i][1], geometry_bounds, geom_rect)
-        p2 = _fit_point_to_rect_equal_scale(points[i + 1][0], points[i + 1][1], geometry_bounds, geom_rect)
+        p1 = _fit_point_to_rect_equal_scale(points[i][0], points[i][1], outline_bounds, outline_rect)
+        p2 = _fit_point_to_rect_equal_scale(points[i + 1][0], points[i + 1][1], outline_bounds, outline_rect)
         rl.DrawLine(p1[0], p1[1], p2[0], p2[1], make_color(40, 220, 220, 255))
 
     overlay = "Field off" if sample is None or not sample.field else f"{sample.field_mode.title()} field"
@@ -1376,6 +1378,8 @@ def _draw_geometry_image(
     )
     field_bounds = sample.field_domain if sample is not None and sample.field_domain is not None else geometry_bounds
     field_rect = _equal_scale_rect(field_bounds, (gx, gy, gw, gh))
+    outline_rect = field_rect if sample is not None and sample.field else geom_rect
+    outline_bounds = field_bounds if sample is not None and sample.field else geometry_bounds
 
     # panel background
     rl.ImageDrawRectangle(image_ptr, gx, gy, gw, gh, make_color(18, 18, 18, 255))
@@ -1406,8 +1410,8 @@ def _draw_geometry_image(
         )
 
     for i in range(len(points) - 1):
-        p1 = _fit_point_to_rect_equal_scale(points[i][0], points[i][1], geometry_bounds, geom_rect)
-        p2 = _fit_point_to_rect_equal_scale(points[i + 1][0], points[i + 1][1], geometry_bounds, geom_rect)
+        p1 = _fit_point_to_rect_equal_scale(points[i][0], points[i][1], outline_bounds, outline_rect)
+        p2 = _fit_point_to_rect_equal_scale(points[i + 1][0], points[i + 1][1], outline_bounds, outline_rect)
         rl.ImageDrawLine(image_ptr, p1[0], p1[1], p2[0], p2[1], make_color(40, 220, 220, 255))
 
     overlay = "Field off" if sample is None or not sample.field else f"{sample.field_mode.title()} field"
@@ -1738,7 +1742,7 @@ def main() -> int:
     parser.add_argument(
         "--field-domain-mode",
         choices=("bounds", "padded"),
-        default="bounds",
+        default="padded",
         help="Use padded airfoil bounds ('bounds') or field-expanded box ('padded') for sampling grid.",
     )
     parser.add_argument(
@@ -1759,7 +1763,7 @@ def main() -> int:
     parser.add_argument(
         "--field-margin-y",
         type=float,
-        default=None,
+        default=400.0,
         help="Y-axis field padding in percent while keeping X padding from --field-margin.",
     )
     parser.add_argument("--iterations", type=int, default=200)
